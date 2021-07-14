@@ -7,17 +7,18 @@
 #define ERROR_RETURN(STR)   (fprintf(stderr, (STR)), -1)
 
 
-void print_dht(struct htable *  htable) {
+
+
+void print_dht(struct htable *htable) {
 	int count = 0;
 	for(int i = 0; i < 16; i++) {
-		fprintf(stdout, "%d : %hhu\n",i ,htable->code_counts[i]);
+		fprintf(stdout, "%d : %hhu\n", i, htable->code_counts[i]);
 		count += htable->code_counts[i];
 	}
 	if(count > 256) return;
 	for(int i = 0; i< count; i++) {
 		fprintf(stdout, "%hhX\n", htable->symbols[i]);
 	}	
-
 }
 
 int decode_dht(struct jpeg_context *ctx) {
@@ -34,7 +35,7 @@ int decode_dht(struct jpeg_context *ctx) {
 		return -1;
 			
 	int code_count = 0;
-	for(int i = 0; i< 16; i++)	{
+	for(int i = 0; i < 16; i++)	{
 		code_count += table->htable.code_counts[i];
 	}
 	if(code_count > 256)

@@ -77,7 +77,6 @@ static void inline add_lookup_code(const uint16_t code,  const uint8_t symbole, 
 			ptable[i] = (struct prefix_code){.symbole = symbole, .clength = clength};
 		} 
 	}
-	
 }
 
 static void inline add_table_code(const uint16_t code, const uint8_t symbole, const uint8_t clength, struct prefix_code *prefix_node){
@@ -125,11 +124,15 @@ void free_huffman_table(struct huffman_table *table, struct jpeg_context *ctx) {
 
 }
 
+
+
+
 /*  Backing memory for  stream, need to be alloced at least 16 alligned. 
 	To ensure that decoding on end of stream do not go outside alloced memory
 */
 uint8_t decode_symbole(uint16_t **stream, struct huffman_table *htable) {
 	
+	// We start with chunk of 16 bits, max bit size of huffman symbole 
 	const uint16_t pre_code = **stream;
 		
 	struct prefic_code *node = htable->ptable[pre_code >> HUFF_BTREE_CODE_BITS];		
