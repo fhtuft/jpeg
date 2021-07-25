@@ -8,7 +8,7 @@ LDFLAGS = `pkg-config --libs gtk+-2.0`
 	$(CC) $< $(CFLAGS) -c -o $@
 
 
-test : jpeg_context.o decode_sos.o decode_sof.o decode_dqt.o decode_dht.o decode_jpeg.o main.o
+test : jpeg_context.o tables.o idct.o  huffman.o  decode_sos.o decode_sof.o decode_dqt.o decode_dht.o decode_jpeg.o main.o
 	$(LD)  $^ $(LDFLAGS) -o $@ 
 
 
