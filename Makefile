@@ -2,7 +2,7 @@ CC = gcc
 LD = gcc 
 CFLAGS = -Wall -g -std=c11 -pedantic 
 CFLAGS += `pkg-config --cflags gtk+-2.0` 
-LDFLAGS = `pkg-config --libs gtk+-2.0`
+LDFLAGS = -lm `pkg-config --libs gtk+-2.0`
 
 %.o : %.c
 	$(CC) $< $(CFLAGS) -c -o $@
