@@ -13,14 +13,13 @@
 #define HUFF_TABLE_LENGTH 2U
 
 
-#define LOG2_BASE(X) (8U*sizeof(X) - __builtin_clz((X)))
-
+#define LOG2_BASE(X) (8U*sizeof(X) - __builtin_clz((X))) // clz : count leading zeros
 
 
 struct prefix_code {
 	uint16_t symbole; 
 	uint8_t clength;
-	struct prefix_code *table; /* NULL signals code is in the prefix table */		
+	struct prefix_code *table; /* NULL signals code is in this node of the prefix table */		
 };
 
 struct huffman_table {
@@ -35,7 +34,7 @@ static void print_table_code(struct prefix_code *table, uint16_t prev_code) {
 		for(int i = 0; i < 2; i++) {
 			struct prefix_code *prefix_code = &table[i];
 			uint16_t code = prev_code << (1 + i);
-			if(prefix_code->table ) {
+			if(prefix_code->table) {
 				print_table_code(prefix_code->table, code);
 				continue;
 			}
@@ -70,7 +69,7 @@ void alloc_huffman_table(struct jpeg_context *ctx) {
 }
 
 
-static void inline add_lookup_code(const uint16_t code,  const uint8_t symbole, const uint8_t clength, struct prefix_code ptable[HUFF_PREFIX_CODE_COUNT] ) {
+static void add_lookup_code(const uint16_t code,  const uint8_t symbole, const uint8_t clength, struct prefix_code ptable[HUFF_PREFIX_CODE_COUNT] ) {
 	
 	for(uint16_t i = 1 << clength; i < HUFF_PREFIX_CODE_COUNT; i++) {
 		const uint16_t len = LOG2_BASE(i);
@@ -80,7 +79,7 @@ static void inline add_lookup_code(const uint16_t code,  const uint8_t symbole, 
 	}
 }
 
-static void inline add_table_code(const uint16_t code, const uint8_t symbole, const uint8_t clength, struct prefix_code *prefix_node){
+static void add_table_code(const uint16_t code, const uint8_t symbole, const uint8_t clength, struct prefix_code *prefix_node){
 	uint8_t clen = HUFF_PREFIX_CODE_COUNT;
 	struct prefix_code *node = prefix_node;
 	do {
@@ -98,27 +97,22 @@ static void inline add_table_code(const uint16_t code, const uint8_t symbole, co
 	}while(0);
 }
 
-int init_huffman_tables(struct huffman_table **table, struct jpeg_context *ctx) {	
+int create_huffman_tables(struct huffman_table *table, struct htable *htable) {	
 
-	struct htable * htable = ctx->htable;
-	struct huffman_table *t = (struct huffman_table*)malloc(sizeof(*t));
-	memset(t, 0, sizeof(*t));
-
-	uint8_t code = 0, index = 0;
+	uint8_t code = 0, index = 0;  // code :current generated code, index : index of symbole  
 	for(uint8_t i = 0; i < HUFF_PREFIX_CODE_BITS; i++) {
-		for(uint8_t j = htable->code_counts[j]; j; j--) {
-			add_lookup_code(code++, htable->symbols[index++], i, t->ptable);	
+		for(uint8_t j = htable->code_counts[i]; j; j--) {
+			add_lookup_code(code++, htable->symbols[index++], i, table->ptable);	
 		}		
 		code <<= 1;
 	}	
 	for(uint8_t i = HUFF_PREFIX_CODE_BITS; i < HUFF_MAX_CODE_BITS; i++) {
-		for(uint8_t j = htable->code_counts[j]; j ; j--) {
-			add_table_code(code++, htable->symbols[index++], i, t->ptable);
+		for(uint8_t j = htable->code_counts[i]; j ; j--) {
+			add_table_code(code++, htable->symbols[index++], i, table->ptable);
 		}		
 		code <<= 1;
 	}
 
-	*table = t;
 	return 0;
 }
 
@@ -126,10 +120,7 @@ void free_huffman_table(struct jpeg_context *ctx) {
 	assert(ctx->huffman_table);
 	/* TODO free huffman tree's*/
 	free(ctx->huffman_table);
-
 }
-
-
 
 
 /*  Backing memory for  stream, need to be alloced at least 16 alligned. 
@@ -145,7 +136,7 @@ uint8_t decode_symbole(uint16_t **stream, struct huffman_table *htable) {
 		node = &node->table[pre_code & 1 << len];
 	}
 
-	*stream = &stream[node->clength];
+	*stream = stream[node->clength];
 	return node->symbole;
 }
 
