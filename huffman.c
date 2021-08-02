@@ -1,4 +1,7 @@
-
+/*
+	Huffman table implemention using prefixtable for decoding  
+	
+*/
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -7,7 +10,7 @@
 #include "huffman.h"
 
 #define HUFF_MAX_CODE_BITS 16U
-#define HUFF_PREFIX_CODE_BITS 9U
+#define HUFF_PREFIX_CODE_BITS 9U  /* number of bits lenght code words covered in the prefix table*/
 #define HUFF_BTREE_CODE_BITS (HUFF_MAX_CODE_BITS - HUFF_PREFIX_CODE_BITS)
 #define HUFF_PREFIX_CODE_COUNT (1U << HUFF_PREFIX_CODE_BITS)
 #define HUFF_TABLE_LENGTH 2U
@@ -18,7 +21,7 @@
 
 struct prefix_code {
 	uint16_t symbole; 
-	uint8_t clength;
+	uint8_t code_length;
 	struct prefix_code *table; /* NULL signals code is in this node of the prefix table */		
 };
 
@@ -27,7 +30,7 @@ struct huffman_table {
 };
 
 static void inline print_node(struct prefix_code * prefix_code, const uint16_t code) {
-		fprintf(stdout, "code : %hX  symbole : %hu code length : %hhu \n", code, prefix_code->symbole, prefix_code->clength);		
+		fprintf(stdout, "code : %hX  symbole : %hu code length : %hhu \n", code, prefix_code->symbole, prefix_code->code_length);		
 }
 
 static void print_table_code(struct prefix_code *table, uint16_t prev_code) {
@@ -69,17 +72,21 @@ void alloc_huffman_table(struct jpeg_context *ctx) {
 }
 
 
-static void add_lookup_code(const uint16_t code,  const uint8_t symbole, const uint8_t clength, struct prefix_code ptable[HUFF_PREFIX_CODE_COUNT] ) {
+/*
 	
-	for(uint16_t i = 1 << clength; i < HUFF_PREFIX_CODE_COUNT; i++) {
-		const uint16_t len = LOG2_BASE(i);
-		if(code == i >> (len - clength)) {
-			ptable[i] = (struct prefix_code){.symbole = symbole, .clength = clength};
-		} 
+*/
+static void add_lookup_code(const uint16_t code,  const uint8_t symbole, const uint8_t code_length, struct prefix_code ptable[HUFF_PREFIX_CODE_COUNT] ) {
+	
+	for(uint16_t i = 1 << code_len; i < HUFF_PREFIX_CODE_COUNT; i++) {
+		if(code == i >> (LOG2_BASE(i) - code_length)) { // We compare with clength most significant bits of the prefix table index i
+			ptable[i].symbole = symbole;
+			ptable[i].code_length = code_length;
+			break;
+		}  
 	}
 }
 
-static void add_table_code(const uint16_t code, const uint8_t symbole, const uint8_t clength, struct prefix_code *prefix_node){
+static void add_table_code(const uint16_t code, const uint8_t symbole, const uint8_t code_length, struct prefix_code *prefix_node){
 	uint8_t clen = HUFF_PREFIX_CODE_COUNT;
 	struct prefix_code *node = prefix_node;
 	do {
@@ -93,7 +100,8 @@ static void add_table_code(const uint16_t code, const uint8_t symbole, const uin
 			clen++;
 			continue;
 		}
-		*node = (struct prefix_code){ .symbole = symbole, .clength = clength};
+		(*node).symbole = symbole;
+		(*node).code_length = code_length;
 	}while(0);
 }
 
