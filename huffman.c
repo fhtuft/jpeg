@@ -95,8 +95,8 @@ static void add_table_code(const uint16_t code, const uint8_t symbole, const uin
 			node->table = malloc(psize);
 			memset(node->table, 0, psize);
 		}
-		node = &node->table[(code & (1 << (clen - 1))  ) ? 1 : 0]; // TODO check it out	
-		if(node->clength){
+		node = &node->table[(code & (1 << (clen - 1)) ) ? 1 : 0]; // Chose right or left path from most signifacnt noe evaluted bite  
+		if(node->code_length) {
 			clen++;
 			continue;
 		}
