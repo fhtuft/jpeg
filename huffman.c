@@ -50,7 +50,7 @@ void print_huffman_table(struct huffman_table *htable) {
 	struct prefix_code *ptable = htable->ptable;
 	fprintf(stdout, "lookup table\n");
 	for(uint16_t i = 0; i < HUFF_PREFIX_CODE_COUNT; i++) {
-			if(ptable[i].table || !ptable[i].clength ) {
+			if(ptable[i].table || !ptable[i].code_length ) {
 				continue;
 			}
 			print_node(&ptable[i], i);
@@ -77,8 +77,8 @@ void alloc_huffman_table(struct jpeg_context *ctx) {
 */
 static void add_lookup_code(const uint16_t code,  const uint8_t symbole, const uint8_t code_length, struct prefix_code ptable[HUFF_PREFIX_CODE_COUNT] ) {
 	
-	for(uint16_t i = 1 << code_len; i < HUFF_PREFIX_CODE_COUNT; i++) {
-		if(code == i >> (LOG2_BASE(i) - code_length)) { // We compare with clength most significant bits of the prefix table index i
+	for(uint16_t i = 1 << code_length; i < HUFF_PREFIX_CODE_COUNT; i++) {
+		if(code == i >> (LOG2_BASE(i) - code_length)) { // We compare with code length most significant bits of the prefix table index i
 			ptable[i].symbole = symbole;
 			ptable[i].code_length = code_length;
 			break;
@@ -108,13 +108,14 @@ static void add_table_code(const uint16_t code, const uint8_t symbole, const uin
 int create_huffman_tables(struct huffman_table *table, struct htable *htable) {	
 
 	uint8_t code = 0, index = 0;  // code :current generated code, index : index of symbole  
-	for(uint8_t i = 0; i < HUFF_PREFIX_CODE_BITS; i++) {
+	uint8_t i = 0;
+	for(; i < HUFF_PREFIX_CODE_BITS; i++) {
 		for(uint8_t j = htable->code_counts[i]; j; j--) {
 			add_lookup_code(code++, htable->symbols[index++], i, table->ptable);	
 		}		
 		code <<= 1;
 	}	
-	for(uint8_t i = HUFF_PREFIX_CODE_BITS; i < HUFF_MAX_CODE_BITS; i++) {
+	for(; i < HUFF_MAX_CODE_BITS; i++) {
 		for(uint8_t j = htable->code_counts[i]; j ; j--) {
 			add_table_code(code++, htable->symbols[index++], i, table->ptable);
 		}		
@@ -140,11 +141,11 @@ uint8_t decode_symbole(uint16_t **stream, struct huffman_table *htable) {
 	const uint16_t pre_code = **stream;
 		
 	struct prefix_code *node = &htable->ptable[pre_code >> HUFF_BTREE_CODE_BITS];		
-	for(uint8_t len = 9; node->table; len++) {
+	for(uint8_t len = 9U; node->table; len++) {
 		node = &node->table[pre_code & 1 << len];
 	}
 
-	*stream = stream[node->clength];
+	*stream = stream[node->code_length];
 	return node->symbole;
 }
 
