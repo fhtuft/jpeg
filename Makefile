@@ -11,7 +11,9 @@ LDFLAGS = -lm `pkg-config --libs gtk+-2.0`
 test : jpeg_context.o tables.o idct.o  huffman.o  decode_sos.o decode_sof.o decode_dqt.o decode_dht.o decode_jpeg.o main.o
 	$(LD)  $^ $(LDFLAGS) -o $@ 
 
-
+.PHONY: run
+run : test
+	./test porsche.jpg
 
 .PHONY: clean
 clean : 

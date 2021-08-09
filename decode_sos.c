@@ -20,7 +20,9 @@ static void decode_block() {
 
 
 void decode_sos(struct jpeg_context *ctx) {
-	
+
+	fprintf(stdout, "decode_sos\n");	
+	fprintf(stdout, "mcu_hight : %d mcu_width : %d number_of_componets : %d \n", ctx->mcu_hight, ctx->mcu_width, ctx->ncomp);
 
 	for(int y_mcu = 0; y_mcu < ctx->mcu_hight; y_mcu++) {
 		for(int x_mcu = 0; x_mcu < ctx->mcu_width; x_mcu++) {
@@ -34,7 +36,7 @@ void decode_sos(struct jpeg_context *ctx) {
 		}
 
 	}
-
+	fprintf(stdout, "finshed decode_sos\n");
 
 }
 

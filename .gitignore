@@ -1,0 +1,7 @@
+*.o
+test
+*.jpg
+*.jpeg
+*.swp
+*.swo
+*.swn

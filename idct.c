@@ -18,7 +18,7 @@ double dct_lookup[64]  = {
 void idct(uint8_t *mcu) {
 	double out[8*8];
 	
-	for(int i = 0; i < 64; i+=8) {
+	for(int i = 0; i < 64; i+= 8) {
 		for(int j = 0; j < 8; j++) {
 			double tmp = 0.0;
 			for(int k = 0; k < 8; k++) {
