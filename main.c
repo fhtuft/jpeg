@@ -5,6 +5,7 @@
 #include <gtk/gtk.h>
 
 #include "jpeg.h"
+#include "options.h"
 #include "jpeg_context.h"
 #include "decode_jpeg.h"
 
@@ -12,12 +13,14 @@
 
 int main(int argc, char *argv[]) {
     	
-	if(argc != 2) {
-		exit(EXIT_FAILURE);	
-	}
+
+	struct options options;
+	init_options(&options);
+	
+	parse_args(argc, argv, &options);
 	
 	FILE *fp;
-	fp = fopen(argv[1], "r");
+	fp = fopen(&options.input_file_path, "r");
 	if(!fp) {
 		fprintf(stderr, "wrong number of args\n");
 		exit(EXIT_FAILURE);
