@@ -28,9 +28,12 @@ static void print_info(void) {
 
 static void print_help(void) {
 	print_info();
-	fprintf(stdout, "usage stuff [options]\n");
-
-} 
+	fprintf(stdout, "usage test [options]\n");
+	fprintf(stdout, "--file <filename>\n");
+	fprintf(stdout, "--print [%s|%s]\n", OPTARG_HUFFMAN_TOKEN, OPTARG_QUANTIZATION_TOKEN);
+	fprintf(stdout, "--help\n");
+}
+ 
 
 void init_options(struct options *options) {
 	memset(options, 0, sizeof(*options));
