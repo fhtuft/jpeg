@@ -18,11 +18,12 @@ int main(int argc, char *argv[]) {
 	init_options(&options);
 	
 	parse_args(argc, argv, &options);
-	
+
+	fprintf(stderr, "file : %s\n", options.input_file_path);	
 	FILE *fp;
-	fp = fopen(&options.input_file_path, "r");
+	fp = fopen(options.input_file_path, "r");
 	if(!fp) {
-		fprintf(stderr, "wrong number of args\n");
+		fprintf(stderr, "error opning file\n");
 		exit(EXIT_FAILURE);
 	}
 	fseek(fp, 0, SEEK_END);

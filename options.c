@@ -13,7 +13,10 @@
 #define OPTIONS_PRINT_QUANT 0
 #endif
 
-#define MAX_LEN_OPTARGS 2000 /* */
+
+#define OPTARG_HUFFMAN_TOKEN 	  "huffman_table"
+#define OPTARG_QUANTIZATION_TOKEN "quant_table"
+#define MAX_LEN_OPTARGS 200 /*semi random.. */
 
 
 static char tmp_optarg[MAX_LEN_OPTARGS];
@@ -26,6 +29,7 @@ static void print_info(void) {
 static void print_help(void) {
 	print_info();
 	fprintf(stdout, "usage stuff [options]\n");
+
 } 
 
 void init_options(struct options *options) {
@@ -36,10 +40,20 @@ void init_options(struct options *options) {
 
 static int parse_print_optarg(char *optarg, struct print_options *options) {
 	memset(tmp_optarg, 0, sizeof(tmp_optarg));	
-	for(char *token =  NULL ;;)  {
-		token = strtok		
+	strncpy(tmp_optarg, optarg, sizeof(tmp_optarg)); // best effor, might lose some
+	
+	char *token = strtok(tmp_optarg, " ");
+	while(token != NULL ) {
+		if(!strcmp(OPTARG_HUFFMAN_TOKEN, token)) {
+			options->huffman_tables = true;
+		} else if(!strcmp(OPTARG_QUANTIZATION_TOKEN, token)) {
+			options->quantization_tables = true;
+		} else {
+			fprintf(stderr, "unknown token %s \n", token);
+		}
+		token = strtok(NULL ," ");
 	}
-
+	return 0;
 }
 
 
@@ -65,6 +79,7 @@ int parse_args(int argc, char **argv, struct options *options) {
 				strncpy(options->input_file_path, optarg, sizeof(options->input_file_path));
 				break;
 			case 'p':
+				parse_print_optarg(optarg, &options->print);
 				break;
 			case 'h':
 				print_help();
