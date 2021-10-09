@@ -2,6 +2,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <stdlib.h>
 
 #include "options.h"
 
@@ -86,7 +87,7 @@ int parse_args(int argc, char **argv, struct options *options) {
 				break;
 			case 'h':
 				print_help();
-				break;
+				exit(EXIT_SUCCESS);
 			case '?':
 				break;
 			default:
